@@ -3,7 +3,8 @@ import cattEvent
 
 #Parameters
 PID_GPIO = 21
-PID_REARM = 10000
+PID_REARM = 60000
+#PID_REARM = 5000
 
 class PIR:
 
@@ -17,4 +18,7 @@ class PIR:
 	def enableCallback(self,eventQueue):
 		self.eventQueue = eventQueue
 		RPIO.wait_for_interrupts(threaded=True)
+
+	def __del__(self):
+		RPIO.cleanup()
 
