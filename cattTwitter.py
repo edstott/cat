@@ -4,6 +4,7 @@ import time
 import Queue
 import logging
 import threading
+import urllib2
 
 TWITTER_CREDS = os.path.expanduser('~/.catt_credentials')
 CONSUMER_KEY = "eRENCvbmZ1mfSSyis9uVMstGb"
@@ -51,7 +52,8 @@ def tweeter(ctw):
 			attempt = 1
 			while not tweet(newtweet,tw):
 				retryint = 2.0**(attempt-1)
-				logging.debug('Tweet failed. Attempt %d. Retry in %f s',attempt,retryint)
+				logging.warning('Tweet failed. Attempt %d. Retry in %f s',attempt,retryint)
+				attempt += 1
 				time.sleep(retryint)
 			
 
@@ -65,8 +67,7 @@ def tweet(newtweet,tw):
 				tparams = {"media[]":imagefile.read(),"status":newtweet.text}
 			tw.statuses.update_with_media(**tparams)
 			logging.info('Tweeted \"%s\" with photo %s',newtweet.text,newtweet.image)
-	except:
-		raise
+	except urllib2.URLError:
 		return False
 	else:
 		return True
