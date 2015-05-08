@@ -4,6 +4,7 @@ import Queue
 import PIR
 import cattCam
 import cattTwitter
+import random
 
 TWITTER_EN = True
 PIR_MSG = "I'm hungry"
@@ -44,12 +45,21 @@ try:
 			#print("New event: "+newEvent.type+" at "+time.strftime("%H:%M:%S",newEvent.time))
 
 			if newEvent.type == "PIR":
-				logging.info("PIR trigger")
-				imagefile = cam.takephoto()
-				logging.info("Took photo %s",imagefile)
-				if (TWITTER_EN and time.time() > nextPIRtweettime):
-					ctw.tweetqueue.put(cattTwitter.cattTweet(PIR_MSG,image=imagefile))
+				if (time.time() > nextPIRtweettime):
 					nextPIRtweettime = time.time()+PIR_TWEET_INTERVAL
+					logging.info("PIR trigger")
+					imagefile = cam.takephoto()
+					camparams = cam.getparams()
+					camparams['again']
+					camparams['dgain']
+					camparams['expsp']
+					logging.info("Took photo %s",imagefile)
+					if (TWITTER_EN):
+						param_str = ' AG={:0.2f} DG={:0.2f} ES={:0.2f}'.format(camparams['again'],camparams['dgain'],camparams['expsp']/1000)
+						#ctw.tweetqueue.put(cattTwitter.cattTweet("I'm Brando? Nah." + param_str,image=imagefile))
+						ctw.tweetqueue.put(cattTwitter.cattTweet(PIR_MSG,image=imagefile))
+						#if random.random() < 0.1:
+						#	ctw.tweetqueue.put(cattTwitter.cattTweet("I'm Brando? Yeah." + param_str,image="img/brando.jpg"))
 
 			if newEvent.type == "weight_change":
 				print("Weight changed: "+str(newEvent.data))
