@@ -25,13 +25,14 @@ class cattTwitter:
 	def __init__(self):
 		self.twitterthread = threading.Thread(target=tweeter,args=[self])
 		self.tweetqueue = Queue.Queue(0)
+		self.twitterthread.daemon = True
 		self.twitterthread.start()
 
 	def kill(self):
 		logging.debug('Killing Twitter thread')
 		self.tweetqueue.put(None)
-		logging.debug('Waiting for Twitter thread')
-		self.twitterthread.join()
+		#logging.debug('Waiting for Twitter thread')
+		#self.twitterthread.join()
 
 def tweeter(ctw):
 
