@@ -1,21 +1,27 @@
-import RPIO
 import Queue
 import weigher
 import cattEvent
+from threading import Thread
+import time
+import servo
 
-WEIGH_INTERVAL = 10.0
+WEIGH_INTERVAL = 1.0
+WEIGHT_TRIGGER = 5.0
 
-class cattFeeder:
+class cattFeeder(Thread):
 
-	def __init__(self,outqueue):
-		self.servo = RPIO.PWM.Servo()
-		self.outqueue = outqueue
-		self.inqueue = Queue.Queue
-		self.scales = weigher.weigher
-		self.oldWeight = self.weigher.getweight()
-		thre
+	def __init__(self,out = False):
+		Thread.__init__(self)
+		self.daemon = True
+		self.outqueue = out
+		self.srv = servo.servo()
+		self.inqueue = Queue.Queue()
+		self.scales = weigher.weigher()
+		self.oldWeight = self.scales.getrealweight()
+		self.start()
+
 		
-	def feederService(self):
+	def run(self):
 		while (True):
 			try:			
 				newCmd = self.inqueue.get(True,WEIGH_INTERVAL)
@@ -25,9 +31,12 @@ class cattFeeder:
 				self.obeyCommand(newCmd)
 				
 	def checkWeightChange(self):
-		newWeight = self.weigher.getweight()
+		newWeight = self.scales.getrealweight()
+		print 'Weight = '+str(newWeight)
 		if abs(newWeight-self.oldWeight)>WEIGHT_TRIGGER:
-			self.outqueue.put_nowait(cattEvent.cattEvent("weight_change",newWeight-self.oldWeight))
+			print "Weight changed by "+str(newWeight-self.oldWeight)
+			if self.outqueue:
+				self.outqueue.put_nowait(cattEvent.cattEvent("weight_change",newWeight-self.oldWeight))
 		self.oldWeight = newWeight
 
 	def obeyCommand(self,cmd):
@@ -35,4 +44,11 @@ class cattFeeder:
 			self.deliverFood(cmd.data)
 	
 	def deliverFood(self,amount):
-		self.outqueue.put_nowait(cattEvent.cattEvent("delivered",newWeight-self.amount))
+		self.srv.home()
+		self.srv.oscillate()
+		self.srv.home()
+		self.srv.idle()
+		newWeight = self.scales.getrealweight()
+		if self.outqueue:
+			self.outqueue.put_nowait(cattEvent.cattEvent("delivered",self.oldWeight-newWeight))
+		self.oldWeight = newWeight
