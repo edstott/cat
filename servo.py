@@ -44,7 +44,13 @@ class servo(GPIO.PWM):
 			time.sleep(period/2.0)
 			self.setAngle(self.homeAng-amplitude)
 			time.sleep(period/2.0)
-			self.setAngle(self.homeAng+amplitude)
+
+	def kill(self):
+		self.isRunning = False
+		self.stop()
+		GPIO.setup(self.pin,GPIO.IN)
+		
+		
 		
 			
 		
