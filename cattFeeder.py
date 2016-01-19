@@ -12,6 +12,8 @@ MAX_FEED_TRIES = 20
 FEED_AMP = 0.10
 STABLE_DELAY = 1.0
 
+enableFeed = True
+
 class cattFeeder(Thread):
 
 	def __init__(self,out = False):
@@ -37,18 +39,19 @@ class cattFeeder(Thread):
 	#Correct for weight drift on every timed measurement. Flag abrupt changes			
 	def checkWeightChange(self):
 		newWeight = self.scales.getrealweight()
-		print 'Weight = '+str(newWeight)
+		#print 'Weight = '+str(newWeight)
 		if abs(newWeight-self.oldWeight)>WEIGHT_TRIGGER:
-			print "Weight changed by "+str(newWeight-self.oldWeight)
+			#print "Weight changed by "+str(newWeight-self.oldWeight)
 			if self.outqueue:
-				self.outqueue.put_nowait(cattEvent.cattEvent("weight_change",newWeight-self.oldWeight))
+				self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.WEIGHT_CHANGE,newWeight-self.oldWeight))
 		self.oldWeight = newWeight
 
 	#Command handler
 	def obeyCommand(self,cmd):
-		if cmd.type == "deliver":
-			print "Feeding " + str(cmd.data)
-			#self.deliverFood(cmd.data)
+		if cmd.type == cattEvent.FEED:
+			#print "Feeding " + str(cmd.data)
+			if enableFeed:
+				self.deliverFood(cmd.data)
 		if cmd.type == "kill":
 			self.srv.kill()
 			self.stop = True
@@ -66,7 +69,7 @@ class cattFeeder(Thread):
 			tries += 1
 			time.sleep(STABLE_DELAY)
 			intWeight = self.scales.getrealweight()
-			print str(intWeight)
+			#print str(intWeight)
 			if intWeight <= targetweight:
 				feedloop = False
 			if tries > MAX_FEED_TRIES:
@@ -78,7 +81,7 @@ class cattFeeder(Thread):
 		diffWeight = initialweight - newWeight
 		print "Delivered " + str(diffWeight)
 		if self.outqueue:
-			self.outqueue.put_nowait(cattEvent.cattEvent("delivered",diffWeight))
+			self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.DELIVERED,diffWeight))
 		self.oldWeight = newWeight
 
 	#Put a thread kill command on the queue, wait for thread to end
