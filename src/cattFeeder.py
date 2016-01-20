@@ -3,11 +3,12 @@ import weigher
 import cattEvent
 from threading import Thread
 import time
+import logging
 import servo
 
 WEIGH_INTERVAL = 1.0
 WEIGHT_TRIGGER = 5.0
-
+WEIGHT_TOLERANCE = 3.0
 MAX_FEED_TRIES = 20
 FEED_AMP = 0.10
 STABLE_DELAY = 1.0
@@ -60,6 +61,7 @@ class cattFeeder(Thread):
 	def deliverFood(self,amount):
 		initialweight = self.scales.getrealweight()
 		targetweight = initialweight - amount
+		logging.info("{:f}g of food has been requested".format(targetWeight))
 		feedloop = True
 		self.srv.home()
 		tries = 0
@@ -79,9 +81,11 @@ class cattFeeder(Thread):
 		self.srv.idle()
 		newWeight = self.scales.getrealweight()
 		diffWeight = initialweight - newWeight
-		print "Delivered " + str(diffWeight)
+		logging.info("Delivered {:f}g after {:d} pulses".format(diffWeight,tries))
 		if self.outqueue:
 			self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.DELIVERED,diffWeight))
+			if abs(diffWeight - targetweight) > WEIGHT_TOLERANCE
+				self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.FEED_ERROR,diffWeight))
 		self.oldWeight = newWeight
 
 	#Put a thread kill command on the queue, wait for thread to end

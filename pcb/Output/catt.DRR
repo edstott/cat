@@ -1,0 +1,19 @@
+---------------------------------------------------------------------------
+NCDrill File Report For: catt.PcbDoc   3/31/2015  11:28:32 AM
+---------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : catt.TXT
+
+Tool         Hole Size           Hole Type     Hole Count Plated       Tool Travel
+---------------------------------------------------------------------------
+T1        0.7mm (27.559mil)        Round          21               145.06 mm (5.71 Inch)
+T2        0.9mm (35.433mil)        Round          56               185.66 mm (7.31 Inch)
+T3        1.1mm (43.307mil)        Round          8                17.78 mm (0.70 Inch)
+T4        2.75mm (108.268mil)      Round          4                165.00 mm (6.50 Inch)
+T5        3mm (118.11mil)          Round          2                5.77 mm (0.23 Inch)
+T6        3.5mm (137.795mil)       Round          1                0.00 mm (0.00 Inch)
+---------------------------------------------------------------------------
+Totals                                            92               519.28 mm (20.44 Inch)
+
+Total Processing Time (hh:mm:ss) : 00:00:00
