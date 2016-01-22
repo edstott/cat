@@ -5,7 +5,42 @@
 	<body>
 
 		Hello.
+		{% if cam.latest is none %}
+			No photos have been taken
+		{% else %}
+			Last photo taken at {{ cam.latesttime }}
+			<img src="{{ cam.latest }}" alt="Photo taken at {{ cam.latesttime }}" style="width:304px;height:228px;">
+		{% endif %}
+		
+		<table style="width:50%">
+			<tr>
+				<th>Date</th>
+				<th>Start Weight</th> 
+				<th>Fed Weight</th> 
+				<th>End Weight</th> 
+				<th>PIR triggers</th>
+				<th>Tweets Sent</th> 
+			</tr>
+			<tr>
+				<td>Today</td>
+				<td>{{ stats.start_weight }}</td>
+				<td>{{ stats.fed }}</td>
+				<td>{{ stats.end_weight }}</td>
+				<td>{{ stats.pir_trig }}</td>
+				<td>{{ stats.tweets }}</td>
+			</tr>
+			{% for item in oldstats %}
+				<tr>
+					<td>{{ item.date }}</td>
+					<td>{{ item.start_weight }}</td>
+					<td>{{ item.fed }}</td>
+					<td>{{ item.end_weight }}</td>
+					<td>{{ item.pir_trig }}</td>
+					<td>{{ item.tweets }}</td>
+				</tr>
+			{% endfor %}
+		</table>
 
-		Generated at {{ html_time }}
+		Generated on {{ html_time }}
 	</body>
 </html>

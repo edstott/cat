@@ -5,6 +5,7 @@ import Queue
 import logging
 import threading
 import urllib2
+import cattEvent
 
 TWITTER_CREDS = os.path.expanduser('~/.catt_credentials')
 CONSUMER_KEY = "eRENCvbmZ1mfSSyis9uVMstGb"
@@ -22,9 +23,10 @@ class cattTweet:
 
 class cattTwitter:
 
-	def __init__(self):
+	def __init__(self,outQueue):
 		self.twitterthread = threading.Thread(target=tweeter,args=[self])
 		self.tweetqueue = Queue.Queue(0)
+		self.outQueue = outQueue
 		self.twitterthread.daemon = True
 		self.twitterthread.start()
 
@@ -56,6 +58,7 @@ def tweeter(ctw):
 				logging.warning('Tweet failed. Attempt %d. Retry in %f s',attempt,retryint)
 				attempt += 1
 				time.sleep(retryint)
+			self.outQueue.put(cattEvent.cattEvent(cattEvent.SENT_TWEET,data = newtweet.text)
 			
 
 def tweet(newtweet,tw):

@@ -1,5 +1,6 @@
 import picamera
 import RPIO
+import time
 
 IR_EN = True
 IR_GPIO = 25
@@ -19,6 +20,8 @@ class camera:
 		self.cam.sensor_mode = SENSOR_MODE
 		self.fileroot = fileroot
 		self.photoIDX = 0
+		self.lastphoto = None
+		self.lastphototime = None
 		if IR_EN:
 			RPIO.setup(IR_GPIO,RPIO.OUT)
 			RPIO.output(IR_GPIO,False)
@@ -29,8 +32,10 @@ class camera:
 		if IR_EN:
 			RPIO.output(IR_GPIO,True)	
 		self.cam.capture(filename)
+		self.lastphototime = time.time()
 		if IR_EN:
 			RPIO.output(IR_GPIO,False)
+		self.lastphoto = filename
 		return filename
 
 	def getparams(self):
