@@ -86,6 +86,8 @@ class cattSchedule(threading.Thread):
 											event = cattEvent.cattEvent(eventCmd[0],time=time.mktime(eventTime))
 										self.addEventQuietly(event)
 										ecount += 1
+				elif line[0] == '#':	#Ignore comments
+					pass
 				else:
 					print "Bad line in "+filename
 					print line

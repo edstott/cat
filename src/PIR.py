@@ -3,7 +3,7 @@ import cattEvent
 import time
 
 #Parameters
-PID_GPIO = 21
+PID_GPIO = 22
 PID_REARM = 1000
 #PID_REARM = 5000
 TRIGGER_WIN = 5.0 #Length of trigger window

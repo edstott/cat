@@ -58,7 +58,7 @@ def tweeter(ctw):
 				logging.warning('Tweet failed. Attempt %d. Retry in %f s',attempt,retryint)
 				attempt += 1
 				time.sleep(retryint)
-			self.outQueue.put(cattEvent.cattEvent(cattEvent.SENT_TWEET,data = newtweet.text)
+			ctw.outQueue.put(cattEvent.cattEvent(cattEvent.SENT_TWEET,data = newtweet.text))
 			
 
 def tweet(newtweet,tw):

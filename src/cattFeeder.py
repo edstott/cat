@@ -61,7 +61,7 @@ class cattFeeder(Thread):
 	def deliverFood(self,amount):
 		initialweight = self.scales.getrealweight()
 		targetweight = initialweight - amount
-		logging.info("%fg of food has been requested",targetWeight)
+		logging.info("%fg of food has been requested",amount)
 		feedloop = True
 		self.srv.home()
 		tries = 0
@@ -81,11 +81,11 @@ class cattFeeder(Thread):
 		self.srv.idle()
 		newWeight = self.scales.getrealweight()
 		diffWeight = initialweight - newWeight
-		logging.info("Delivered %fg after %d pulses",diffWeight,tries))
+		logging.info("Delivered %fg after %d pulses",diffWeight,tries)
 		if self.outqueue:
 			self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.DELIVERED,diffWeight))
-			if abs(diffWeight - targetweight) > WEIGHT_TOLERANCE
-				self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.FEED_ERROR,diffWeight))
+			if abs(diffWeight - targetweight) > WEIGHT_TOLERANCE:
+				self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.FEED_ERROR,(targetweight-diffweight)))
 		self.oldWeight = newWeight
 
 	#Put a thread kill command on the queue, wait for thread to end

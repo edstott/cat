@@ -3,7 +3,7 @@ import RPIO
 import time
 
 IR_EN = True
-IR_GPIO = 25
+IR_GPIO = 17
 SHUTTER_SPEED = 20000
 SENSOR_MODE = 2
 RES = (1296,972)
