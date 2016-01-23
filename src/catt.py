@@ -2,6 +2,7 @@ import logging
 import time,datetime,calendar
 import Queue
 import random
+import os
 
 import PIR
 import cattCam
@@ -12,7 +13,7 @@ import cattEvent
 import cattWeb
 
 LOG_FILE = "catt.log"
-DEBUG_LEVEL = logging.DEBUG
+DEBUG_LEVEL = logging.INFO
 
 class catt:
 
@@ -46,9 +47,6 @@ class catt:
 		nexttime = calendar.timegm(nextdate.timetuple())
 		event = cattEvent.cattEvent(cattEvent.UPDATE_STAT,time=nexttime)
 		self.CS.addEvent(event)
-		#Schedule web page update
-		if catt.WEB_EN:
-			self.CS.addEvent(cattEvent.cattEvent(cattEvent.UPDATE_WEB,time=time.time()))	
 				
 		#Start feeder
 		self.CF = cattFeeder.cattFeeder(self.eventQueue)
@@ -61,6 +59,7 @@ class catt:
 		#Setup Web
 		if catt.WEB_EN:
 			self.CW = cattWeb.cattWeb()
+			self.CS.addEvent(cattEvent.webEvent())	
 		
 		if catt.CAM_EN:
 			self.cam = cattCam.camera(catt.IMAGE_ROOT)
@@ -112,7 +111,7 @@ class catt:
 			event = cattEvent.cattEvent(cattEvent.READ_SCHEDULE,time=nexttime)
 			self.CS.addEvent(event)
 
-		if newEvent.type == cattEvent.FEED:
+		if newEvent.isfeedEvent():
 			self.CF.inqueue.put(newEvent)
 			
 		if newEvent.type == cattEvent.DELIVERED:
@@ -121,13 +120,12 @@ class catt:
 			if catt.TWITTER_EN:
 				self.ctw.tweetqueue.put(cattTwitter.cattTweet(catt.FED_MSG.format(newEvent.data)))
 				
-		if newEvent.type == cattEvent.UPDATE_WEB:
+		if newEvent.iswebEvent():
 			if catt.WEB_EN:
 				self.CW.update(self)
 				#Schedule next web update
 				nexttime = calendar.timegm((datetime.datetime.utcnow()+catt.WEB_INTERVAL).timetuple())
-				event = cattEvent.cattEvent(cattEvent.UPDATE_WEB,time=nexttime)
-				self.CS.addEvent(event)
+				self.CS.addEvent(cattEvent.webEvent(time=nexttime))
 				
 		if newEvent.type == cattEvent.UPDATE_STAT:
 			current_weight = self.todaystat['end_weight']
@@ -151,6 +149,8 @@ class catt:
 			self.ctw.kill()
 		self.CF.kill()
 		self.CF.join()
+		self.CS.kill()
+		#self.CS.join() - Doesn't work because scheduler main loop is blocked
 
 if __name__ == '__main__':
 	#Start logging

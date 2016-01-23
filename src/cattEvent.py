@@ -9,6 +9,7 @@ FEED_ERROR = 'FEED_ERROR'
 UPDATE_WEB = 'UPDATE_WEB'
 UPDATE_STAT = 'UPDATE_STAT'
 SENT_TWEET = 'SENT_TWEET'
+KILL = 'KILL'
 
 class cattEvent:
 	
@@ -26,3 +27,17 @@ class cattEvent:
 		if self.data:
 			string += ' '+str(self.data)
 		return string
+
+	def isfeedEvent(self):
+		return self.type == FEED
+
+	def iswebEvent(self):
+		return self.type == UPDATE_WEB
+
+def feedEvent(amount,time = time.time()):
+	return cattEvent(FEED,data = amount,time = time)
+
+def webEvent(time=time.time()):
+	return cattEvent(UPDATE_WEB,time = time)
+
+

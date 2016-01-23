@@ -24,10 +24,11 @@ class cattSchedule(threading.Thread):
 		self.schQueue = Queue.PriorityQueue()
 		self.resched = threading.Event()
 		self.outqueue = outqueue
+		self.stop = threading.Event()
 		self.start()
 
 	def run(self):
-		while True:
+		while not self.stop.isSet():
 			#Get the next event, block if there are none
 			(nextTime,nextEvent) = self.schQueue.get()
 
@@ -53,7 +54,7 @@ class cattSchedule(threading.Thread):
 		logging.debug("Scheduled event "+event.type+" for " + time.strftime(T_FMT,time.gmtime(event.time)))
 
 	def addFeedEvent(self,eventTime,amount):
-		event = cattEvent.cattEvent(cattEvent.FEED,amount,eventTime)
+		event = cattEvent.feedEvent(amount,eventTime)
 		self.addEvent(eventTime,event)
 
 	def readSchedule(self,filename):
@@ -98,12 +99,15 @@ class cattSchedule(threading.Thread):
 
 
 
-def clearSchedule(self):
-	try:
-		while True:
-			self.schQueue.get_nowait()
-	except Queue.Empty:
-			pass
+	def clearSchedule(self):
+		try:
+			while True:
+				self.schQueue.get_nowait()
+		except Queue.Empty:
+				pass
+
+	def kill(self):
+		self.stop.set()
 
 
 					

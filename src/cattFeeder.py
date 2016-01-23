@@ -53,7 +53,7 @@ class cattFeeder(Thread):
 			#print "Feeding " + str(cmd.data)
 			if enableFeed:
 				self.deliverFood(cmd.data)
-		if cmd.type == "kill":
+		if cmd.type == cattEvent.KILL:
 			self.srv.kill()
 			self.stop = True
 			
@@ -90,10 +90,10 @@ class cattFeeder(Thread):
 
 	#Put a thread kill command on the queue, wait for thread to end
 	def kill(self):
-		self.inqueue.put_nowait(cattEvent.cattEvent("kill"))
+		self.inqueue.put_nowait(cattEvent.cattEvent(cattEvent.KILL))
 		#self.join()
 
 	#Put a deliver command on the queue
 	def feed(self,amount):
-		self.inqueue.put_nowait(cattEvent.cattEvent("deliver",amount))
+		self.inqueue.put_nowait(cattEvent.cattEvent(cattEvent.FEED,amount))
 
