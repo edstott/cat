@@ -12,7 +12,7 @@
 
 CATT_USER=root
 NAME=catt_screen
-DIR=/home/catt
+DIR=/home/cat/src
 DESC="Catt management service"
 
 case "$1" in

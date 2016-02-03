@@ -10,12 +10,16 @@ UPDATE_WEB = 'UPDATE_WEB'
 UPDATE_STAT = 'UPDATE_STAT'
 SENT_TWEET = 'SENT_TWEET'
 KILL = 'KILL'
+PIR = 'PIR'
 
 class cattEvent:
 	
-	def __init__(self,etype,data = None,time = time.time()):
+	def __init__(self,etype,data = None,etime = None):
 		self.type = etype
-		self.time = time
+		if etime:
+			self.time = etime
+		else:
+			self.time = time.time()
 		self.data = data
 		#try:
 	#		self.data = args[1]
@@ -34,10 +38,13 @@ class cattEvent:
 	def iswebEvent(self):
 		return self.type == UPDATE_WEB
 
-def feedEvent(amount,time = time.time()):
-	return cattEvent(FEED,data = amount,time = time)
+def feedEvent(amount,etime = time.time()):
+	return cattEvent(FEED,data = amount,etime = etime)
 
-def webEvent(time=time.time()):
-	return cattEvent(UPDATE_WEB,time = time)
+def webEvent(etime=time.time()):
+	return cattEvent(UPDATE_WEB,etime = etime)
+
+def PIREvent(etime=None):
+	return cattEvent(PIR,etime = etime)
 
 

@@ -41,11 +41,11 @@ class catt:
 						
 		#Start scheduler
 		self.CS = cattSchedule.cattSchedule(self.eventQueue)
-		self.CS.addEvent(cattEvent.cattEvent(cattEvent.READ_SCHEDULE,time=time.time()))			
+		self.CS.addEvent(cattEvent.cattEvent(cattEvent.READ_SCHEDULE,etime=time.time()))			
 		#Schedule a stats update at midnight
 		nextdate = datetime.date.today() + datetime.timedelta(1.0)
 		nexttime = calendar.timegm(nextdate.timetuple())
-		event = cattEvent.cattEvent(cattEvent.UPDATE_STAT,time=nexttime)
+		event = cattEvent.cattEvent(cattEvent.UPDATE_STAT,etime=nexttime)
 		self.CS.addEvent(event)
 				
 		#Start feeder
@@ -84,7 +84,7 @@ class catt:
 		if newEvent.type == "PIR":
 			if (time.time() > self.nextPIRtweettime):
 				self.nextPIRtweettime = time.time()+catt.PIR_TWEET_INTERVAL
-				logging.info("PIR trigger")
+				#logging.info("PIR trigger")
 				self.todaystat['pir_trig'] += 1
 				if catt.CAM_EN:
 					imagefile = self.cam.takephoto()
@@ -108,7 +108,7 @@ class catt:
 			#After reading the file, schedule another read tomorrow
 			nextdate = datetime.date.today() + datetime.timedelta(1.0)
 			nexttime = calendar.timegm(nextdate.timetuple())
-			event = cattEvent.cattEvent(cattEvent.READ_SCHEDULE,time=nexttime)
+			event = cattEvent.cattEvent(cattEvent.READ_SCHEDULE,etime=nexttime)
 			self.CS.addEvent(event)
 
 		if newEvent.isfeedEvent():
@@ -125,7 +125,7 @@ class catt:
 				self.CW.update(self)
 				#Schedule next web update
 				nexttime = calendar.timegm((datetime.datetime.utcnow()+catt.WEB_INTERVAL).timetuple())
-				self.CS.addEvent(cattEvent.webEvent(time=nexttime))
+				self.CS.addEvent(cattEvent.webEvent(etime=nexttime))
 				
 		if newEvent.type == cattEvent.UPDATE_STAT:
 			current_weight = self.todaystat['end_weight']
@@ -137,7 +137,7 @@ class catt:
 			#Schedule another update tomorrow
 			nextdate = datetime.date.today() + datetime.timedelta(1.0)
 			nexttime = calendar.timegm(nextdate.timetuple())
-			event = cattEvent.cattEvent(cattEvent.UPDATE_STAT,time=nexttime)
+			event = cattEvent.cattEvent(cattEvent.UPDATE_STAT,etime=nexttime)
 			self.CS.addEvent(event)
 			
 		if newEvent.type == cattEvent.SENT_TWEET:

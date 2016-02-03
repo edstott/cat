@@ -84,7 +84,7 @@ class cattSchedule(threading.Thread):
 										if len(eventCmd)>1:
 											event = cattEvent.cattEvent(eventCmd[0],float(eventCmd[1]),time.mktime(eventTime))
 										else:
-											event = cattEvent.cattEvent(eventCmd[0],time=time.mktime(eventTime))
+											event = cattEvent.cattEvent(eventCmd[0],etime=time.mktime(eventTime))
 										self.addEventQuietly(event)
 										ecount += 1
 				elif line[0] == '#':	#Ignore comments

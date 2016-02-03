@@ -21,7 +21,7 @@ class PIR:
 		if time.time() < self.lastEdgeTime + TRIGGER_WIN:
 			self.triggerCount += 1
 			if self.triggerCount == TRIGGER_COUNT:
-				self.eventQueue.put_nowait(cattEvent.cattEvent("PIR"))
+				self.eventQueue.put_nowait(cattEvent.PIREvent())
 		else:
 			self.lastEdgeTime = time.time()
 			self.triggerCount = 1
