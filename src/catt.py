@@ -27,7 +27,7 @@ class catt:
 	IMAGE_ROOT = "../img/image_"
 	SCHED_FILE = "sched.txt"
 
-	WEB_INTERVAL = datetime.timedelta(minutes = 10)
+	WEB_INTERVAL = datetime.timedelta(minutes = 60)
 	
 	STATS_DICT = {'fed':0.0, 'pir_trig':0, 'date':None, 'tweets':0, 'start_weight':0.0, 'end_weight':0.0}
 	
@@ -41,7 +41,7 @@ class catt:
 						
 		#Start scheduler
 		self.CS = cattSchedule.cattSchedule(self.eventQueue)
-		self.CS.addEvent(cattEvent.cattEvent(cattEvent.READ_SCHEDULE,etime=time.time()))			
+		self.CS.addEvent(cattEvent.SchedEvent())			
 		#Schedule a stats update at midnight
 		nextdate = datetime.date.today() + datetime.timedelta(1.0)
 		nexttime = calendar.timegm(nextdate.timetuple())
@@ -99,9 +99,11 @@ class catt:
 						self.ctw.tweetqueue.put(cattTwitter.cattTweet(catt.PIR_MSG,image=imagefile))
 					else:
 						self.ctw.tweetqueue.put(cattTwitter.cattTweet(catt.PIR_MSG))
+				self.CW.deferredUpdate(self)
 
 		if newEvent.type == cattEvent.WEIGHT_CHANGE:
 			self.todaystat['end_weight'] += newEvent.data
+			self.CW.deferredUpdate(self)
 
 		if newEvent.type == cattEvent.READ_SCHEDULE:
 			self.CS.readSchedule(catt.SCHED_FILE)
@@ -119,6 +121,7 @@ class catt:
 			self.todaystat['end_weight'] += newEvent.data
 			if catt.TWITTER_EN:
 				self.ctw.tweetqueue.put(cattTwitter.cattTweet(catt.FED_MSG.format(newEvent.data)))
+			self.CW.deferredUpdate(self)
 				
 		if newEvent.iswebEvent():
 			if catt.WEB_EN:

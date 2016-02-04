@@ -38,13 +38,16 @@ class cattEvent:
 	def iswebEvent(self):
 		return self.type == UPDATE_WEB
 
-def feedEvent(amount,etime = time.time()):
+def feedEvent(amount,etime=None):
 	return cattEvent(FEED,data = amount,etime = etime)
 
-def webEvent(etime=time.time()):
+def webEvent(etime=None):
 	return cattEvent(UPDATE_WEB,etime = etime)
 
 def PIREvent(etime=None):
 	return cattEvent(PIR,etime = etime)
+
+def SchedEvent(etime=None):
+	return cattEvent(READ_SCHEDULE,etime = etime)
 
 

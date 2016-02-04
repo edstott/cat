@@ -1,6 +1,7 @@
 import picamera
 import RPIO
 import time
+import subprocess
 
 IR_EN = True
 IR_GPIO = 17
@@ -8,6 +9,7 @@ SHUTTER_SPEED = 20000
 SENSOR_MODE = 2
 RES = (1296,972)
 EXP_COMP = -6
+TEMP_FILE = 'temp.jpg'
 
 class camera:
 
@@ -31,11 +33,13 @@ class camera:
 		self.photoIDX += 1
 		if IR_EN:
 			RPIO.output(IR_GPIO,True)	
-		self.cam.capture(filename)
+		self.cam.capture(TEMP_FILE)
 		self.lastphototime = time.time()
 		if IR_EN:
 			RPIO.output(IR_GPIO,False)
 		self.lastphoto = filename
+		with open(filename,'wb') as f:
+			subprocess.call(['jpegtran','-rotate','180',TEMP_FILE], stderr=subprocess.PIPE, stdout=f)
 		return filename
 
 	def getparams(self):
