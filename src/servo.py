@@ -9,7 +9,7 @@ MAX_PULSE = 0.0024
 DEF_HOME = 0.5
 
 class servo(GPIO.PWM):
-	def __init__(self, period=DEF_PRD, pin=DEF_PIN):
+	def __init__(self, period=DEF_PRD, pin=DEF_PIN, home=DEF_HOME):
 		self.period = period
 		self.pin = pin
 		GPIO.setmode(GPIO.BCM)
@@ -17,7 +17,7 @@ class servo(GPIO.PWM):
 		GPIO.PWM.__init__(self,self.pin,1/self.period)
 		self.min = MIN_PULSE
 		self.max = MAX_PULSE
-		self.homeAng = DEF_HOME
+		self.homeAng = home
 		self.isRunning = False
 
 	def setAngle(self,angle):
@@ -41,8 +41,9 @@ class servo(GPIO.PWM):
 	def oscillate(self, amplitude=0.1, cycles=1, period=2.0):
 		self.setAngle(self.homeAng+amplitude)
 		for i in xrange(cycles):
+			self.setAngle(self.homeAng+amplitude)
 			time.sleep(period/2.0)
-			self.setAngle(self.homeAng-amplitude)
+			self.setAngle(self.homeAng)
 			time.sleep(period/2.0)
 
 	def kill(self):

@@ -6,12 +6,16 @@ import time
 import logging
 import servo
 
-WEIGH_INTERVAL = 1.0
+WEIGH_INTERVAL = 10.0
 WEIGHT_TRIGGER = 5.0
 WEIGHT_TOLERANCE = 3.0
 MAX_FEED_TRIES = 20
-FEED_AMP = 0.10
-STABLE_DELAY = 1.0
+FEED_AMP_INIT = 0.02	#Initial feeder amplitude
+FEED_AMP_INC = 0.01	#Feeder amplitude increment if no weight change
+FEED_AMP_MAX = 0.20	#Maximum feeder amplitude
+FEED_CENTRE = 0.40	#Feeder home position
+STABLE_DELAY = 4.0	#Delay after each feed attempt before weighing
+AMP_BOOST_WT = 1.0	#Minimum delivery weight to persist at current amplitude
 
 enableFeed = True
 
@@ -20,7 +24,7 @@ class cattFeeder(Thread):
 	def __init__(self,out = False):
 		Thread.__init__(self)
 		self.outqueue = out
-		self.srv = servo.servo()
+		self.srv = servo.servo(home=FEED_CENTRE)
 		self.inqueue = Queue.Queue()
 		self.scales = weigher.weigher()
 		self.oldWeight = self.scales.getrealweight()
@@ -65,17 +69,29 @@ class cattFeeder(Thread):
 		feedloop = True
 		self.srv.home()
 		tries = 0
+		amp = FEED_AMP_INIT
+		lastWeight = initialweight
 	
-		while feedloop:					
-			self.srv.oscillate(cycles=1, amplitude=FEED_AMP)
+		while feedloop:
+			self.srv.oscillate(cycles=1, amplitude=amp)
 			tries += 1
 			time.sleep(STABLE_DELAY)
 			intWeight = self.scales.getrealweight()
-			#print str(intWeight)
+			logging.debug("Feed attempt %d at ampl. %f. %f delivered",tries,amp,lastWeight-intWeight)				
+
+			#Was any food delivered at all? Increase amplitude if not
+			if lastWeight-intWeight < AMP_BOOST_WT:
+				amp = min(amp + FEED_AMP_INC,FEED_AMP_MAX)
+
+			#Has the target amount been delivered? Finish if so
 			if intWeight <= targetweight:
 				feedloop = False
+
+			#Has the maximum iteration count been reached? Finish if so
 			if tries > MAX_FEED_TRIES:
 				feedloop = False
+
+			lastWeight = intWeight
 
 		self.srv.home()
 		self.srv.idle()
@@ -84,8 +100,8 @@ class cattFeeder(Thread):
 		logging.info("Delivered %fg after %d pulses",diffWeight,tries)
 		if self.outqueue:
 			self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.DELIVERED,diffWeight))
-			if abs(diffWeight - targetweight) > WEIGHT_TOLERANCE:
-				self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.FEED_ERROR,(targetweight-diffweight)))
+			if abs(diffWeight - amount) > WEIGHT_TOLERANCE:
+				self.outqueue.put_nowait(cattEvent.cattEvent(cattEvent.FEED_ERROR,(targetweight-diffWeight)))
 		self.oldWeight = newWeight
 
 	#Put a thread kill command on the queue, wait for thread to end

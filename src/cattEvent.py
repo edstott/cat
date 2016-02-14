@@ -44,6 +44,9 @@ def feedEvent(amount,etime=None):
 def webEvent(etime=None):
 	return cattEvent(UPDATE_WEB,etime = etime)
 
+def defWebEvent(etime=None):
+	return cattEvent(UPDATE_WEB,etime = etime,data = True)
+
 def PIREvent(etime=None):
 	return cattEvent(PIR,etime = etime)
 

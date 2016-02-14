@@ -56,7 +56,7 @@ class cattWeb(Environment):
 		if not self.updatePending:
 			if not delay:
 				delay = DEFAULT_UPDATE_DELAY
-			cattI.CS.addEvent(cattEvent.webEvent(time.time()+delay))
+			cattI.CS.addEvent(cattEvent.defWebEvent(time.time()+delay))
 			self.updatePending = True
 
 

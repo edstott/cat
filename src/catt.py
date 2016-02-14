@@ -17,7 +17,7 @@ DEBUG_LEVEL = logging.INFO
 
 class catt:
 
-	TWITTER_EN = False
+	TWITTER_EN = True
 	CAM_EN = True
 	WEB_EN = True
 	PIR_MSG = "I'm hungry"
@@ -64,7 +64,7 @@ class catt:
 		if catt.CAM_EN:
 			self.cam = cattCam.camera(catt.IMAGE_ROOT)
 		
-		self.todaystat = catt.STATS_DICT
+		self.todaystat = catt.STATS_DICT.copy()
 		self.todaystat['date'] = datetime.date.today()
 		self.oldstat = []
 			
@@ -89,9 +89,6 @@ class catt:
 				if catt.CAM_EN:
 					imagefile = self.cam.takephoto()
 					#camparams = self.cam.getparams()
-					#camparams['again']
-					#camparams['dgain']
-					#camparams['expsp']
 					logging.info("Took photo %s",imagefile)
 				if (catt.TWITTER_EN):
 					if catt.CAM_EN:
@@ -126,14 +123,15 @@ class catt:
 		if newEvent.iswebEvent():
 			if catt.WEB_EN:
 				self.CW.update(self)
-				#Schedule next web update
-				nexttime = calendar.timegm((datetime.datetime.utcnow()+catt.WEB_INTERVAL).timetuple())
-				self.CS.addEvent(cattEvent.webEvent(etime=nexttime))
+				if not newEvent.data:
+					#Schedule next web update if update was not a deferred update
+					nexttime = calendar.timegm((datetime.datetime.utcnow()+catt.WEB_INTERVAL).timetuple())
+					self.CS.addEvent(cattEvent.webEvent(etime=nexttime))
 				
 		if newEvent.type == cattEvent.UPDATE_STAT:
 			current_weight = self.todaystat['end_weight']
-			self.oldstat += self.todaystat
-			self.todaystat = catt.STATS_DICT
+			self.oldstat += [self.todaystat]
+			self.todaystat = catt.STATS_DICT.copy()
 			self.todaystat['date'] = datetime.date.today()
 			self.todaystat['start_weight'] = current_weight
 			self.todaystat['end_weight'] = current_weight
